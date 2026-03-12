@@ -1,272 +1,288 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>AI Image Detection Test</title>
-
-<style>
-
-body{
-font-family:Arial;
-background:white;
-text-align:center;
-margin:40px;
-}
-
-img{
-max-width:500px;
-margin:20px;
-}
-
-button{
-padding:10px 20px;
-margin:5px;
-}
-
-#timer{
-font-size:22px;
-font-weight:bold;
-}
-
-.reasons{
-text-align:left;
-display:inline-block;
-margin-top:15px;
-}
-
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Detection Test</title>
+    <!-- Tailwind CSS pour le style -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons pour les icônes -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .hidden { display: none; }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #4f46e5;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+    </style>
 </head>
-
-<body>
-
-<h2>Image Detection Test</h2>
-
-<div id="intro">
-
-<p>Age</p>
-<input id="age" type="number">
-
-<p>Sex</p>
-<select id="sex">
-<option value="male">Male</option>
-<option value="female">Female</option>
-<option value="other">Other</option>
-</select>
-
-<br><br>
-
-<button onclick="startTest()">Start Test</button>
-
-</div>
-
-<div id="test" style="display:none">
-
-<div id="timer">50</div>
-
-<img id="image">
-
-<br>
-
-<button onclick="answer('real')">Real</button>
-<button onclick="answer('ai')">AI</button>
-
-<br><br>
-
-<div class="reasons" id="reasonsSection" style="display:none">
-
-<b>If AI, why?</b><br>
-
-<label><input type="checkbox" value="lighting"> Art style / Lighting</label><br>
-<label><input type="checkbox" value="background"> Background</label><br>
-<label><input type="checkbox" value="anatomy"> Anatomy problems</label><br>
-<label><input type="checkbox" value="objects"> Objects</label><br>
-<label><input type="checkbox" value="cohesiveness"> Cohesiveness</label><br>
-<label><input type="checkbox" value="textures"> Unnatural textures</label><br>
-<label><input type="checkbox" value="other"> Others / Doubts</label>
-
-</div>
-
-<br><br>
-
-<p>Confidence (%)</p>
-<input type="range" min="0" max="100" value="50" id="confidence">
-
-<br><br>
-
-<button onclick="nextImage()">Next</button>
-
-</div>
-
-<script>
-
-const scriptURL="https://script.google.com/macros/s/AKfycbwwgQjNf7fALk4kewU296XDVSUvUkYP623_j3Og-OkholAWQkYg0L-BJ0QS-WA6SDD_3g/exec"
-
-let images=[]
-let current=0
-let time=50
-let timer
-
-let age=""
-let sex=""
-let currentAnswer=null
-
-async function loadImages(){
-
-let response=await fetch("images.json")
-let data=await response.json()
-
-images=data.images
-images.sort(()=>Math.random()-0.5)
-
-document.getElementById("image").src=images[current]
-
-}
-
-function startTest(){
-
-age=document.getElementById("age").value
-sex=document.getElementById("sex").value
-
-if(age==""){
-alert("Please enter your age")
-return
-}
-
-document.getElementById("intro").style.display="none"
-document.getElementById("test").style.display="block"
-
-loadImages()
-startTimer()
-
-}
-
-function startTimer(){
-
-time=50
-document.getElementById("timer").innerText=time
-
-timer=setInterval(function(){
-
-time--
-document.getElementById("timer").innerText=time
-
-if(time<=0){
-
-clearInterval(timer)
-
-saveResult("no_rep")
-
-nextImage()
-
-}
-
-},1000)
-
-}
-
-function answer(val){
-
-currentAnswer=val
-
-if(val=="ai"){
-
-document.getElementById("reasonsSection").style.display="block"
-
-}else{
-
-document.getElementById("reasonsSection").style.display="none"
-
-}
-
-}
-
-function getReasons(){
-
-let checked=[]
-let boxes=document.querySelectorAll("#reasonsSection input:checked")
-
-boxes.forEach(b=>{
-checked.push(b.value)
-})
-
-return checked
-
-}
-
-function saveResult(prediction){
-
-let data={
-
-age:age,
-sex:sex,
-image:images[current],
-prediction:prediction,
-reasons:getReasons().join(","),
-confidence:document.getElementById("confidence").value
-
-}
-
-fetch(scriptURL,{
-method:"POST",
-body:JSON.stringify(data)
-})
-
-}
-
-function nextImage(){
-
-if(currentAnswer==null){
-
-alert("Please select Real or AI")
-return
-
-}
-
-if(currentAnswer=="ai"){
-
-let reasons=getReasons()
-
-if(reasons.length==0){
-
-alert("Please select at least one reason")
-return
-
-}
-
-}
-
-clearInterval(timer)
-
-saveResult(currentAnswer)
-
-currentAnswer=null
-
-document.querySelectorAll("#reasonsSection input").forEach(el=>el.checked=false)
-
-document.getElementById("reasonsSection").style.display="none"
-
-current++
-
-if(current>=images.length){
-
-finishTest()
-return
-
-}
-
-document.getElementById("image").src=images[current]
-
-startTimer()
-
-}
-
-function finishTest(){
-
-document.getElementById("test").innerHTML="<h2>Test finished. Thank you!</h2>"
-
-}
-
-</script>
-
+<body class="bg-zinc-50 text-zinc-900 min-h-screen flex items-center justify-center p-4">
+
+    <!-- Écran d'Introduction -->
+    <div id="intro-screen" class="w-full max-w-md bg-white rounded-3xl shadow-xl p-8 border border-zinc-100">
+        <div class="flex items-center gap-3 mb-6">
+            <div class="p-3 bg-indigo-50 rounded-2xl text-indigo-600">
+                <i data-lucide="brain" class="w-8 h-8"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold">Détection d'Image</h1>
+                <p class="text-zinc-500 text-sm">Étude de Recherche</p>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <div class="space-y-2">
+                <label class="text-sm font-semibold text-zinc-700 flex items-center gap-2">
+                    <i data-lucide="user" class="w-4 h-4"></i> Âge
+                </label>
+                <input type="number" id="age" placeholder="Votre âge" class="w-full px-4 py-3 rounded-xl border border-zinc-200 outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-sm font-semibold text-zinc-700 flex items-center gap-2">
+                    <i data-lucide="user-circle" class="w-4 h-4"></i> Sexe
+                </label>
+                <select id="sex" class="w-full px-4 py-3 rounded-xl border border-zinc-200 outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                    <option value="male">Homme</option>
+                    <option value="female">Femme</option>
+                    <option value="other">Autre</option>
+                </select>
+            </div>
+
+            <button onclick="startTest()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl transition-all shadow-lg flex items-center justify-center gap-2">
+                Commencer le Test
+                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Écran de Test -->
+    <div id="test-screen" class="hidden w-full max-w-4xl grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Section Image -->
+        <div class="relative">
+            <div class="absolute top-4 right-4 z-10 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
+                <i data-lucide="clock" id="timer-icon" class="w-4 h-4 text-zinc-600"></i>
+                <span id="timer" class="font-mono font-bold text-zinc-900">50s</span>
+            </div>
+            <div class="aspect-[4/3] rounded-3xl overflow-hidden bg-zinc-200 shadow-2xl border-4 border-white">
+                <img id="test-image" src="" class="w-full h-full object-cover">
+            </div>
+            <div class="mt-4 flex justify-between items-center px-2">
+                <span id="progress-text" class="text-sm font-medium text-zinc-400">Image 1 sur 6</span>
+            </div>
+        </div>
+
+        <!-- Section Contrôles -->
+        <div class="bg-white rounded-3xl shadow-xl p-8 border border-zinc-100 flex flex-col">
+            <h2 class="text-xl font-bold text-zinc-900 mb-6 flex items-center gap-2">
+                <i data-lucide="info" class="w-5 h-5 text-indigo-500"></i>
+                Réelle ou IA ?
+            </h2>
+
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <button onclick="selectAnswer('real')" id="btn-real" class="py-4 rounded-2xl font-bold transition-all flex flex-col items-center gap-2 border-2 border-zinc-100 text-zinc-400">
+                    <i data-lucide="check-circle-2" class="w-6 h-6"></i> Réelle
+                </button>
+                <button onclick="selectAnswer('ai')" id="btn-ai" class="py-4 rounded-2xl font-bold transition-all flex flex-col items-center gap-2 border-2 border-zinc-100 text-zinc-400">
+                    <i data-lucide="brain" class="w-6 h-6"></i> IA
+                </button>
+            </div>
+
+            <!-- Raisons (si IA) -->
+            <div id="reasons-section" class="hidden mb-8">
+                <p class="text-sm font-semibold text-zinc-700 mb-3">Pourquoi pensez-vous que c'est une IA ?</p>
+                <div id="reasons-grid" class="flex flex-wrap gap-2">
+                    <!-- Généré par JS -->
+                </div>
+            </div>
+
+            <div class="space-y-4 mb-8">
+                <div class="flex justify-between items-center">
+                    <label class="text-sm font-semibold text-zinc-700">Confiance</label>
+                    <span id="confidence-val" class="text-sm font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg">50%</span>
+                </div>
+                <input type="range" id="confidence" min="0" max="100" value="50" oninput="updateConfidence(this.value)" class="w-full h-2 bg-zinc-100 rounded-lg appearance-none cursor-pointer">
+            </div>
+
+            <button onclick="nextImage()" class="mt-auto w-full bg-zinc-900 hover:bg-black text-white font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2">
+                Suivant
+                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Écran de Fin -->
+    <div id="finish-screen" class="hidden w-full max-w-md bg-white rounded-3xl shadow-xl p-12 text-center border border-zinc-100">
+        <div class="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i data-lucide="check-circle-2" class="w-10 h-10"></i>
+        </div>
+        <h2 class="text-3xl font-bold text-zinc-900 mb-4">Test Terminé</h2>
+        <p class="text-zinc-500 mb-8">Merci pour votre participation ! Vos réponses ont été enregistrées.</p>
+        <button onclick="location.reload()" class="w-full bg-zinc-100 hover:bg-zinc-200 text-zinc-900 font-bold py-4 rounded-xl">Recommencer</button>
+    </div>
+
+    <script>
+        // Configuration
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwwgQjNf7fALk4kewU296XDVSUvUkYP623_j3Og-OkholAWQkYg0L-BJ0QS-WA6SDD_3g/exec";
+        
+        const IMAGES = [
+            "https://picsum.photos/seed/person1/800/600",
+            "https://picsum.photos/seed/nature1/800/600",
+            "https://picsum.photos/seed/tech1/800/600",
+            "https://picsum.photos/seed/ai1/800/600",
+            "https://picsum.photos/seed/real1/800/600",
+            "https://picsum.photos/seed/city1/800/600"
+        ].sort(() => Math.random() - 0.5);
+
+        const REASONS = [
+            { id: 'lighting', label: 'Éclairage / Style' },
+            { id: 'background', label: 'Arrière-plan' },
+            { id: 'anatomy', label: 'Anatomie' },
+            { id: 'objects', label: 'Objets' },
+            { id: 'cohesiveness', label: 'Cohérence' },
+            { id: 'textures', label: 'Textures' },
+            { id: 'other', label: 'Autre' }
+        ];
+
+        let currentIdx = 0;
+        let timeLeft = 50;
+        let timer;
+        let prediction = null;
+        let selectedReasons = [];
+
+        // Initialisation des icônes
+        lucide.createIcons();
+
+        function startTest() {
+            const age = document.getElementById('age').value;
+            if (!age) return alert("Veuillez entrer votre âge");
+            
+            document.getElementById('intro-screen').classList.add('hidden');
+            document.getElementById('test-screen').classList.remove('hidden');
+            loadCurrent();
+        }
+
+        function loadCurrent() {
+            document.getElementById('test-image').src = IMAGES[currentIdx];
+            document.getElementById('progress-text').innerText = `Image ${currentIdx + 1} sur ${IMAGES.length}`;
+            resetTimer();
+            resetSelection();
+        }
+
+        function resetTimer() {
+            clearInterval(timer);
+            timeLeft = 50;
+            updateTimerUI();
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimerUI();
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    saveResult('no_rep');
+                    nextImage(true);
+                }
+            }, 1000);
+        }
+
+        function updateTimerUI() {
+            const el = document.getElementById('timer');
+            el.innerText = timeLeft + 's';
+            if (timeLeft < 10) el.classList.add('text-red-500');
+            else el.classList.remove('text-red-500');
+        }
+
+        function selectAnswer(val) {
+            prediction = val;
+            const btnReal = document.getElementById('btn-real');
+            const btnAi = document.getElementById('btn-ai');
+            const reasonsSec = document.getElementById('reasons-section');
+
+            if (val === 'real') {
+                btnReal.className = "py-4 rounded-2xl font-bold transition-all flex flex-col items-center gap-2 border-2 bg-emerald-50 border-emerald-500 text-emerald-700 shadow-inner";
+                btnAi.className = "py-4 rounded-2xl font-bold transition-all flex flex-col items-center gap-2 border-2 bg-white border-zinc-100 text-zinc-400";
+                reasonsSec.classList.add('hidden');
+            } else {
+                btnAi.className = "py-4 rounded-2xl font-bold transition-all flex flex-col items-center gap-2 border-2 bg-amber-50 border-amber-500 text-amber-700 shadow-inner";
+                btnReal.className = "py-4 rounded-2xl font-bold transition-all flex flex-col items-center gap-2 border-2 bg-white border-zinc-100 text-zinc-400";
+                reasonsSec.classList.remove('hidden');
+                renderReasons();
+            }
+        }
+
+        function renderReasons() {
+            const grid = document.getElementById('reasons-grid');
+            grid.innerHTML = '';
+            REASONS.forEach(r => {
+                const btn = document.createElement('button');
+                btn.innerText = r.label;
+                btn.className = `px-3 py-2 rounded-xl text-xs font-medium border transition-all ${selectedReasons.includes(r.id) ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-zinc-50 border-zinc-200 text-zinc-600'}`;
+                btn.onclick = () => {
+                    if (selectedReasons.includes(r.id)) selectedReasons = selectedReasons.filter(x => x !== r.id);
+                    else selectedReasons.push(r.id);
+                    renderReasons();
+                };
+                grid.appendChild(btn);
+            });
+        }
+
+        function updateConfidence(val) {
+            document.getElementById('confidence-val').innerText = val + '%';
+        }
+
+        function resetSelection() {
+            prediction = null;
+            selectedReasons = [];
+            document.getElementById('btn-real').className = "py-4 rounded-2xl font-bold transition-all flex flex-col items-center gap-2 border-2 bg-white border-zinc-100 text-zinc-400";
+            document.getElementById('btn-ai').className = "py-4 rounded-2xl font-bold transition-all flex flex-col items-center gap-2 border-2 bg-white border-zinc-100 text-zinc-400";
+            document.getElementById('reasons-section').classList.add('hidden');
+            document.getElementById('confidence').value = 50;
+            document.getElementById('confidence-val').innerText = '50%';
+        }
+
+        function nextImage(isAuto = false) {
+            if (!isAuto) {
+                if (!prediction) return alert("Veuillez choisir Réelle ou IA");
+                if (prediction === 'ai' && selectedReasons.length === 0) return alert("Veuillez sélectionner au moins une raison");
+                saveResult(prediction);
+            }
+
+            currentIdx++;
+            if (currentIdx >= IMAGES.length) {
+                clearInterval(timer);
+                document.getElementById('test-screen').classList.add('hidden');
+                document.getElementById('finish-screen').classList.remove('hidden');
+            } else {
+                loadCurrent();
+            }
+        }
+
+        function saveResult(pred) {
+            const data = {
+                age: document.getElementById('age').value,
+                sex: document.getElementById('sex').value,
+                image: IMAGES[currentIdx],
+                prediction: pred,
+                reasons: selectedReasons.join(','),
+                confidence: document.getElementById('confidence').value,
+                timestamp: new Date().toISOString()
+            };
+            
+            console.log("Données envoyées :", data);
+            
+            // Tentative d'envoi (peut échouer sur GitHub Pages à cause de CORS)
+            fetch(SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                body: JSON.stringify(data)
+            }).catch(e => console.warn("Erreur d'envoi (attendu sur GitHub Pages)"));
+        }
+    </script>
 </body>
 </html>
