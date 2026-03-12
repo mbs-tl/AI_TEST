@@ -276,12 +276,15 @@
             
             console.log("Données envoyées :", data);
             
-            // Tentative d'envoi (peut échouer sur GitHub Pages à cause de CORS)
+            // Utilisation de fetch avec mode no-cors pour Google Apps Script
             fetch(SCRIPT_URL, {
                 method: "POST",
                 mode: "no-cors",
+                headers: {
+                    "Content-Type": "application/json"
+                },
                 body: JSON.stringify(data)
-            }).catch(e => console.warn("Erreur d'envoi (attendu sur GitHub Pages)"));
+            }).catch(e => console.error("Erreur d'envoi :", e));
         }
     </script>
 </body>
