@@ -182,13 +182,21 @@
 
         lucide.createIcons();
 
+       
         function startTest() {
             const age = document.getElementById('age').value;
+            const email = document.getElementById('email').value;
+            const expertise = document.getElementById('expertise').value;
+        
             if (!age) return alert("Veuillez entrer votre âge");
+            if (!email) return alert("Veuillez entrer votre adresse e‑mail");
+            if (!expertise) return alert("Veuillez entrer votre domaine d’expertise");
+        
             document.getElementById('intro-screen').classList.add('hidden');
             document.getElementById('test-screen').classList.remove('hidden');
             loadCurrent();
         }
+
 
         function loadCurrent() {
             document.getElementById('test-image').src = IMAGES[currentIdx];
@@ -282,13 +290,14 @@
             const data = {
                 age: document.getElementById('age').value,
                 sex: document.getElementById('sex').value,
+                email: document.getElementById('email').value,
+                expertise: document.getElementById('expertise').value,
                 image: IMAGES[currentIdx],
                 prediction: pred,
                 reasons: selectedReasons.join(','),
                 confidence: document.getElementById('confidence').value,
                 timestamp: new Date().toISOString()
             };
-
             console.log("Envoi des données...", data);
 
             fetch(SCRIPT_URL, {
