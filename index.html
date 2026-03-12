@@ -99,11 +99,11 @@ margin-top:15px;
 
 <script>
 
-const scriptURL="https://script.google.com/macros/s/AKfycbwwgQjNf7fALk4kewU296XDVSUvUkYP623_j3Og-OkholAWQkYg0L-BJ0QS-WA6SDD_3g/exec
+const scriptURL="https://script.google.com/macros/s/AKfycbwwgQjNf7fALk4kewU296XDVSUvUkYP623_j3Og-OkholAWQkYg0L-BJ0QS-WA6SDD_3g/exec"
 
 let images=[]
 let current=0
-let time=30
+let time=50
 let timer
 
 let age=""
@@ -126,6 +126,11 @@ function startTest(){
 
 age=document.getElementById("age").value
 sex=document.getElementById("sex").value
+
+if(age==""){
+alert("Please enter your age")
+return
+}
 
 document.getElementById("intro").style.display="none"
 document.getElementById("test").style.display="block"
