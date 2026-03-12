@@ -7,7 +7,7 @@
 <style>
 
 body{
-font-family: Arial;
+font-family:Arial;
 background:white;
 text-align:center;
 margin:40px;
@@ -24,8 +24,14 @@ margin:5px;
 }
 
 #timer{
-font-size:20px;
+font-size:22px;
 font-weight:bold;
+}
+
+.reasons{
+text-align:left;
+display:inline-block;
+margin-top:15px;
 }
 
 </style>
@@ -53,6 +59,7 @@ font-weight:bold;
 
 </div>
 
+
 <div id="test" style="display:none">
 
 <div id="timer">50</div>
@@ -66,7 +73,23 @@ font-weight:bold;
 
 <br><br>
 
-<p>Confidence</p>
+<div class="reasons">
+
+<b>If AI, why?</b><br>
+
+<label><input type="checkbox" value="lighting"> Art style / Lighting</label><br>
+<label><input type="checkbox" value="background"> Background</label><br>
+<label><input type="checkbox" value="anatomy"> Anatomy problems</label><br>
+<label><input type="checkbox" value="objects"> Objects</label><br>
+<label><input type="checkbox" value="cohesiveness"> Cohesiveness</label><br>
+<label><input type="checkbox" value="textures"> Unnatural textures</label><br>
+<label><input type="checkbox" value="other"> Others / Doubts</label>
+
+</div>
+
+<br><br>
+
+<p>Confidence (%)</p>
 <input type="range" min="0" max="100" value="50" id="confidence">
 
 <br><br>
@@ -75,8 +98,6 @@ font-weight:bold;
 
 </div>
 
-<br>
-<button onclick="resetTest()">Reset Test</button>
 
 <script>
 
@@ -87,8 +108,10 @@ let timer
 
 let age=""
 let sex=""
+let currentAnswer=null
 
-let results=[]
+// 🔗 METTRE TON LIEN GOOGLE APPS SCRIPT ICI
+const scriptURL="https://teams.microsoft.com/l/message/48:notes/1773311439418?context=%7B%22contextType%22%3A%22chat%22%2C%22oid%22%3A%228%3Aorgid%3Ac7218114-d499-46f8-851b-253b338b4dde%22%7D"
 
 async function loadImages(){
 
@@ -142,24 +165,47 @@ nextImage()
 
 }
 
-let currentAnswer=null
-
 function answer(val){
 
 currentAnswer=val
 
 }
 
+function getReasons(){
+
+let checked=[]
+let boxes=document.querySelectorAll(".reasons input:checked")
+
+boxes.forEach(b=>{
+checked.push(b.value)
+})
+
+return checked.join(",")
+
+}
+
 function saveResult(prediction){
 
-results.push({
+let data={
 
 age:age,
 sex:sex,
 image:images[current],
 prediction:prediction,
+reasons:getReasons(),
 confidence:document.getElementById("confidence").value
 
+}
+
+sendData(data)
+
+}
+
+function sendData(data){
+
+fetch(scriptURL,{
+method:"POST",
+body:JSON.stringify(data)
 })
 
 }
@@ -180,6 +226,8 @@ saveResult(currentAnswer)
 
 currentAnswer=null
 
+document.querySelectorAll(".reasons input").forEach(el=>el.checked=false)
+
 current++
 
 if(current>=images.length){
@@ -197,15 +245,7 @@ startTimer()
 
 function finishTest(){
 
-document.getElementById("test").innerHTML="<h2>Test Finished</h2>"
-
-console.log(results)
-
-}
-
-function resetTest(){
-
-location.reload()
+document.getElementById("test").innerHTML="<h2>Test Finished. Thank you!</h2>"
 
 }
 
