@@ -59,7 +59,6 @@ margin-top:15px;
 
 </div>
 
-
 <div id="test" style="display:none">
 
 <div id="timer">50</div>
@@ -73,7 +72,7 @@ margin-top:15px;
 
 <br><br>
 
-<div class="reasons">
+<div class="reasons" id="reasonsSection" style="display:none">
 
 <b>If AI, why?</b><br>
 
@@ -98,8 +97,9 @@ margin-top:15px;
 
 </div>
 
-
 <script>
+
+const scriptURL="https://teams.microsoft.com/l/message/48:notes/1773311439418?context=%7B%22contextType%22%3A%22chat%22%2C%22oid%22%3A%228%3Aorgid%3Ac7218114-d499-46f8-851b-253b338b4dde%22%7D"
 
 let images=[]
 let current=0
@@ -110,16 +110,12 @@ let age=""
 let sex=""
 let currentAnswer=null
 
-// 🔗 METTRE TON LIEN GOOGLE APPS SCRIPT ICI
-const scriptURL="https://teams.microsoft.com/l/message/48:notes/1773311439418?context=%7B%22contextType%22%3A%22chat%22%2C%22oid%22%3A%228%3Aorgid%3Ac7218114-d499-46f8-851b-253b338b4dde%22%7D"
-
 async function loadImages(){
 
-let response = await fetch("images.json")
-let data = await response.json()
+let response=await fetch("images.json")
+let data=await response.json()
 
 images=data.images
-
 images.sort(()=>Math.random()-0.5)
 
 document.getElementById("image").src=images[current]
@@ -135,7 +131,6 @@ document.getElementById("intro").style.display="none"
 document.getElementById("test").style.display="block"
 
 loadImages()
-
 startTimer()
 
 }
@@ -148,7 +143,6 @@ document.getElementById("timer").innerText=time
 timer=setInterval(function(){
 
 time--
-
 document.getElementById("timer").innerText=time
 
 if(time<=0){
@@ -169,18 +163,28 @@ function answer(val){
 
 currentAnswer=val
 
+if(val=="ai"){
+
+document.getElementById("reasonsSection").style.display="block"
+
+}else{
+
+document.getElementById("reasonsSection").style.display="none"
+
+}
+
 }
 
 function getReasons(){
 
 let checked=[]
-let boxes=document.querySelectorAll(".reasons input:checked")
+let boxes=document.querySelectorAll("#reasonsSection input:checked")
 
 boxes.forEach(b=>{
 checked.push(b.value)
 })
 
-return checked.join(",")
+return checked
 
 }
 
@@ -192,16 +196,10 @@ age:age,
 sex:sex,
 image:images[current],
 prediction:prediction,
-reasons:getReasons(),
+reasons:getReasons().join(","),
 confidence:document.getElementById("confidence").value
 
 }
-
-sendData(data)
-
-}
-
-function sendData(data){
 
 fetch(scriptURL,{
 method:"POST",
@@ -212,21 +210,35 @@ body:JSON.stringify(data)
 
 function nextImage(){
 
-clearInterval(timer)
-
 if(currentAnswer==null){
 
-saveResult("no_rep")
-
-}else{
-
-saveResult(currentAnswer)
+alert("Please select Real or AI")
+return
 
 }
 
+if(currentAnswer=="ai"){
+
+let reasons=getReasons()
+
+if(reasons.length==0){
+
+alert("Please select at least one reason")
+return
+
+}
+
+}
+
+clearInterval(timer)
+
+saveResult(currentAnswer)
+
 currentAnswer=null
 
-document.querySelectorAll(".reasons input").forEach(el=>el.checked=false)
+document.querySelectorAll("#reasonsSection input").forEach(el=>el.checked=false)
+
+document.getElementById("reasonsSection").style.display="none"
 
 current++
 
@@ -245,7 +257,7 @@ startTimer()
 
 function finishTest(){
 
-document.getElementById("test").innerHTML="<h2>Test Finished. Thank you!</h2>"
+document.getElementById("test").innerHTML="<h2>Test finished. Thank you!</h2>"
 
 }
 
