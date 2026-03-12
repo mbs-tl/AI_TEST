@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Image Detection Test</title>
 
-    <!-- Tailwind CSS -->
-    https://cdn.tailwindcss.com</script>
+    <!-- Tailwind -->
+    https://cdn.tailwindcss.com
 
     <!-- Lucide Icons -->
-    https://unpkg.com/lucide@latest</script>
+    <script src="https://unpkg.comt
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
@@ -29,7 +29,7 @@
 
 <body class="bg-zinc-50 text-zinc-900 min-h-screen flex items-center justify-center p-4">
 
-    <!-- INTRO -->
+    <!-- INTRO SCREEN -->
     <div id="intro-screen" class="w-full max-w-md bg-white rounded-3xl shadow-xl p-8 border border-zinc-100">
         <div class="flex items-center gap-3 mb-6">
             <div class="p-3 bg-indigo-50 rounded-2xl text-indigo-600">
@@ -74,7 +74,7 @@
     <!-- TEST SCREEN -->
     <div id="test-screen" class="hidden w-full max-w-4xl grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-        <!-- IMAGE -->
+        <!-- IMAGE ZONE -->
         <div class="relative">
             <div class="absolute top-4 right-4 z-10 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
                 <i data-lucide="clock" class="w-4 h-4 text-zinc-600"></i>
@@ -104,225 +104,3 @@
                 </button>
 
                 <button onclick="selectAnswer('ai')" id="btn-ai"
-                        class="py-4 rounded-2xl font-bold transition-all flex flex-col items-center gap-2 border-2 border-zinc-100 text-zinc-400">
-                    <i data-lucide="brain" class="w-6 h-6"></i> IA
-                </button>
-            </div>
-
-            <!-- REASONS -->
-            <div id="reasons-section" class="hidden mb-8">
-                <p class="text-sm font-semibold text-zinc-700 mb-3">
-                    Pourquoi pensez-vous que c'est une IA ?
-                </p>
-                <div id="reasons-grid" class="flex flex-wrap gap-2"></div>
-            </div>
-
-            <!-- CONFIDENCE -->
-            <div class="space-y-4 mb-8">
-                <div class="flex justify-between items-center">
-                    <label class="text-sm font-semibold text-zinc-700">Confiance</label>
-                    <span id="confidence-val"
-                          class="text-sm font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg">50%</span>
-                </div>
-                <input type="range" id="confidence" min="0" max="100" value="50"
-                       oninput="updateConfidence(this.value)"
-                       class="w-full h-2 bg-zinc-100 rounded-lg appearance-none cursor-pointer">
-            </div>
-
-            <button onclick="nextImage()" 
-                    class="mt-auto w-full bg-zinc-900 hover:bg-black text-white font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2">
-                Suivant
-                <i data-lucide="chevron-right" class="w-5 h-5"></i>
-            </button>
-        </div>
-    </div>
-
-    <!-- FINISH -->
-    <div id="finish-screen"
-         class="hidden w-full max-w-md bg-white rounded-3xl shadow-xl p-12 text-center border border-zinc-100">
-
-        <div class="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
-            <i data-lucide="check-circle-2" class="w-10 h-10"></i>
-        </div>
-
-        <h2 class="text-3xl font-bold text-zinc-900 mb-4">Test Terminé</h2>
-        <p class="text-zinc-500 mb-8">
-            Merci pour votre participation ! Vos réponses ont été enregistrées.
-        </p>
-
-        <button onclick="location.reload()"
-                class="w-full bg-zinc-100 hover:bg-zinc-200 text-zinc-900 font-bold py-4 rounded-xl">
-            Recommencer
-        </button>
-    </div>
-
-    <script>
-
-       
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzFe_2DpinyM0IH1r4-SXDfrNcR8Zo0154OmX-SJ8gdCjUy9VJv1ZRE8LMR49vo7MxlMQ/exec"; 
-       
-
-        const IMAGES = [
-            "https://picsum.photos/seed/person1/800/600",
-            "https://picsum.photos/seed/nature1/800/600",
-            "https://picsum.photos/seed/tech1/800/600",
-            "https://picsum.photos/seed/ai1/800/600",
-            "https://picsum.photos/seed/real1/800/600",
-            "https://picsum.photos/seed/city1/800/600"
-        ].sort(() => Math.random() - 0.5);
-
-        const REASONS = [
-            { id: 'lighting', label: 'Éclairage / Style' },
-            { id: 'background', label: 'Arrière-plan' },
-            { id: 'anatomy', label: 'Anatomie' },
-            { id: 'objects', label: 'Objets' },
-            { id: 'cohesiveness', label: 'Cohérence' },
-            { id: 'textures', label: 'Textures' },
-            { id: 'other', label: 'Autre' }
-        ];
-
-        let currentIdx = 0;
-        let timeLeft = 20;
-        let timer;
-        let prediction = null;
-        let selectedReasons = [];
-
-        lucide.createIcons();
-
-        function startTest() {
-            const age = document.getElementById('age').value;
-            if (!age) return alert("Veuillez entrer votre âge");
-
-            document.getElementById('intro-screen').classList.add('hidden');
-            document.getElementById('test-screen').classList.remove('hidden');
-            loadCurrent();
-        }
-
-        function loadCurrent() {
-            document.getElementById('test-image').src = IMAGES[currentIdx];
-            document.getElementById('progress-text').innerText =
-                `Image ${currentIdx + 1} sur ${IMAGES.length}`;
-            resetTimer();
-            resetSelection();
-        }
-
-        function resetTimer() {
-            clearInterval(timer);
-            timeLeft = 50;
-            updateTimerUI();
-
-            timer = setInterval(() => {
-                timeLeft--;
-                updateTimerUI();
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    saveResult('no_rep');
-                    nextImage(true);
-                }
-            }, 1000);
-        }
-
-        function updateTimerUI() {
-            document.getElementById('timer').innerText = timeLeft + 's';
-        }
-
-        function selectAnswer(val) {
-            prediction = val;
-
-            const btnReal = document.getElementById('btn-real');
-            const btnAi = document.getElementById('btn-ai');
-            const reasonsSec = document.getElementById('reasons-section');
-
-            if (val === 'real') {
-                btnReal.className = "py-4 rounded-2xl font-bold flex flex-col items-center gap-2 border-2 bg-emerald-50 border-emerald-500 text-emerald-700 shadow-inner";
-                btnAi.className = "py-4 rounded-2xl font-bold flex flex-col items-center gap-2 border-2 bg-white border-zinc-100 text-zinc-400";
-                reasonsSec.classList.add('hidden');
-            } else {
-                btnAi.className = "py-4 rounded-2xl font-bold flex flex-col items-center gap-2 border-2 bg-amber-50 border-amber-500 text-amber-700 shadow-inner";
-                btnReal.className = "py-4 rounded-2xl font-bold flex flex-col items-center gap-2 border-2 bg-white border-zinc-100 text-zinc-400";
-                reasonsSec.classList.remove('hidden');
-                renderReasons();
-            }
-        }
-
-        function renderReasons() {
-            const grid = document.getElementById('reasons-grid');
-            grid.innerHTML = '';
-
-            REASONS.forEach(r => {
-                const btn = document.createElement('button');
-                btn.innerText = r.label;
-                btn.className =
-                    `px-3 py-2 rounded-xl text-xs font-medium border transition-all
-                     ${selectedReasons.includes(r.id)
-                        ? 'bg-indigo-600 border-indigo-600 text-white'
-                        : 'bg-zinc-50 border-zinc-200 text-zinc-600'}`
-                btn.onclick = () => {
-                    if (selectedReasons.includes(r.id))
-                        selectedReasons = selectedReasons.filter(x => x !== r.id);
-                    else selectedReasons.push(r.id);
-                    renderReasons();
-                };
-                grid.appendChild(btn);
-            });
-        }
-
-        function updateConfidence(val) {
-            document.getElementById('confidence-val').innerText = val + '%';
-        }
-
-        function resetSelection() {
-            prediction = null;
-            selectedReasons = [];
-            document.getElementById('btn-real').className =
-                "py-4 rounded-2xl font-bold flex flex-col items-center gap-2 border-2 bg-white border-zinc-100 text-zinc-400";
-            document.getElementById('btn-ai').className =
-                "py-4 rounded-2xl font-bold flex flex-col items-center gap-2 border-2 bg-white border-zinc-100 text-zinc-400";
-            document.getElementById('reasons-section').classList.add('hidden');
-            document.getElementById('confidence').value = 50;
-            document.getElementById('confidence-val').innerText = '50%';
-        }
-
-        function nextImage(isAuto = false) {
-            if (!isAuto) {
-                if (!prediction) return alert("Veuillez choisir Réelle ou IA");
-                if (prediction === 'ai' && selectedReasons.length === 0)
-                    return alert("Veuillez sélectionner au moins une raison");
-                saveResult(prediction);
-            }
-
-            currentIdx++;
-            if (currentIdx >= IMAGES.length) {
-                clearInterval(timer);
-                document.getElementById('test-screen').classList.add('hidden');
-                document.getElementById('finish-screen').classList.remove('hidden');
-            } else loadCurrent();
-        }
-
-        /**
-
-         */
-        function saveResult(pred) {
-            const data = {
-                age: document.getElementById('age').value,
-                sex: document.getElementById('sex').value,
-                image: IMAGES[currentIdx],
-                prediction: pred,
-                reasons: selectedReasons.join(','),
-                confidence: document.getElementById('confidence').value,
-                timestamp: new Date().toISOString()
-            };
-
-            console.log("Données envoyées :", data);
-
-            fetch(SCRIPT_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data)
-            })
-            .then(res => res.text())
-            .then(txt => console.log("Réponse serveur :", txt))
-            .catch(e => console.error("Erreur d'envoi :", e));
-        }
-    </script>
-</body>
